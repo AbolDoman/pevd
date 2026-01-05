@@ -1,5 +1,15 @@
-import { useMemo } from 'react';
-import type { Station } from '../types/station';
+import { useMemo } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Filter, X, Building2 } from "lucide-react";
+import type { Station } from "../types/station";
 
 interface CityFilterProps {
   stations: Station[];
@@ -7,37 +17,69 @@ interface CityFilterProps {
   onCityChange: (city: string) => void;
 }
 
-export function CityFilter({ stations, selectedCity, onCityChange }: CityFilterProps) {
+export function CityFilter({
+  stations,
+  selectedCity,
+  onCityChange,
+}: CityFilterProps) {
   const cities = useMemo(() => {
     const uniqueCities = [...new Set(stations.map((s) => s.city))];
     return uniqueCities.sort();
   }, [stations]);
 
+  const stationCountByCity = useMemo(() => {
+    const counts: Record<string, number> = {};
+    stations.forEach((s) => {
+      counts[s.city] = (counts[s.city] || 0) + 1;
+    });
+    return counts;
+  }, [stations]);
+
+  const isFiltered = selectedCity && selectedCity !== "all";
+
   return (
-    <div className="flex gap-2 items-center">
-      <label htmlFor="city-filter" className="font-medium text-gray-700">
-        Filter by City:
-      </label>
-      <select
-        id="city-filter"
-        value={selectedCity}
-        onChange={(e) => onCityChange(e.target.value)}
-        className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white"
-      >
-        <option value="">All Cities</option>
-        {cities.map((city) => (
-          <option key={city} value={city}>
-            {city}
-          </option>
-        ))}
-      </select>
-      {selectedCity && (
-        <button
-          onClick={() => onCityChange('')}
-          className="px-3 py-2 text-sm bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors"
+    <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 text-muted-foreground mr-1">
+        <Filter className="h-4 w-4" />
+        <span className="text-sm font-medium hidden sm:inline">City</span>
+      </div>
+      <Select value={selectedCity} onValueChange={onCityChange}>
+        <SelectTrigger className="w-[180px] bg-background/50 backdrop-blur-sm">
+          <SelectValue placeholder="All Cities" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">
+            <div className="flex items-center justify-between w-full gap-3">
+              <span>All Cities</span>
+              <Badge variant="secondary" className="text-xs tabular-nums">
+                {stations.length}
+              </Badge>
+            </div>
+          </SelectItem>
+          {cities.map((city) => (
+            <SelectItem key={city} value={city}>
+              <div className="flex items-center justify-between w-full gap-3">
+                <div className="flex items-center gap-2">
+                  <Building2 className="h-3.5 w-3.5 text-muted-foreground" />
+                  <span>{city}</span>
+                </div>
+                <Badge variant="outline" className="text-xs tabular-nums">
+                  {stationCountByCity[city]}
+                </Badge>
+              </div>
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      {isFiltered && (
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => onCityChange("all")}
+          className="h-8 w-8 text-muted-foreground hover:text-foreground"
         >
-          Clear
-        </button>
+          <X className="h-4 w-4" />
+        </Button>
       )}
     </div>
   );

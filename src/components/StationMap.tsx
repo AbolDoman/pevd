@@ -46,7 +46,7 @@ function MapController({ selectedStation }: MapControllerProps) {
 
   useEffect(() => {
     if (selectedStation) {
-      map.flyTo([selectedStation.latitude, selectedStation.longitude], 12, {
+      map.flyTo([selectedStation.lat, selectedStation.lng], 12, {
         duration: 1,
       });
     }
@@ -82,7 +82,7 @@ export function StationMap({ stations, selectedStation, onStationClick }: Statio
       {stations.map((station) => (
         <Marker
           key={station.id}
-          position={[station.latitude, station.longitude]}
+          position={[station.lat, station.lng]}
           icon={selectedStation?.id === station.id ? highlightedIcon : defaultIcon}
           eventHandlers={{
             click: () => onStationClick(station),

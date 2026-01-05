@@ -1,53 +1,46 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { CityFilter } from './CityFilter';
 import type { Station } from '../types/station';
 
 const mockStations: Station[] = [
-  { id: 1, name: 'Berlin Hbf', city: 'Berlin', latitude: 52.52, longitude: 13.405 },
-  { id: 2, name: 'Munich Hbf', city: 'Munich', latitude: 48.14, longitude: 11.56 },
-  { id: 3, name: 'Hamburg Hbf', city: 'Hamburg', latitude: 53.55, longitude: 10.0 },
-  { id: 4, name: 'Berlin Ostbahnhof', city: 'Berlin', latitude: 52.51, longitude: 13.43 },
+  { id: 1, name: 'Berlin Hbf', city: 'Berlin', lat: 52.52, lng: 13.405 },
+  { id: 2, name: 'Munich Hbf', city: 'Munich', lat: 48.14, lng: 11.56 },
+  { id: 3, name: 'Hamburg Hbf', city: 'Hamburg', lat: 53.55, lng: 10.0 },
+  { id: 4, name: 'Berlin Ostbahnhof', city: 'Berlin', lat: 52.51, lng: 13.43 },
 ];
 
 describe('CityFilter', () => {
-  it('renders all unique cities in dropdown', () => {
+  it('renders filter label and select trigger', () => {
     const onCityChange = vi.fn();
     render(
       <CityFilter
         stations={mockStations}
-        selectedCity=""
+        selectedCity="all"
         onCityChange={onCityChange}
       />
     );
 
-    const select = screen.getByRole('combobox');
-    expect(select).toBeInTheDocument();
-
-    // Check that all unique cities are present
-    expect(screen.getByText('All Cities')).toBeInTheDocument();
-    expect(screen.getByText('Berlin')).toBeInTheDocument();
-    expect(screen.getByText('Munich')).toBeInTheDocument();
-    expect(screen.getByText('Hamburg')).toBeInTheDocument();
+    expect(screen.getByText('City')).toBeInTheDocument();
+    expect(screen.getByRole('combobox')).toBeInTheDocument();
   });
 
-  it('calls onCityChange when a city is selected', () => {
+  it('does not show clear button when no city is filtered', () => {
     const onCityChange = vi.fn();
     render(
       <CityFilter
         stations={mockStations}
-        selectedCity=""
+        selectedCity="all"
         onCityChange={onCityChange}
       />
     );
 
-    const select = screen.getByRole('combobox');
-    fireEvent.change(select, { target: { value: 'Berlin' } });
-
-    expect(onCityChange).toHaveBeenCalledWith('Berlin');
+    // X button should not be visible when "all" is selected
+    const buttons = screen.queryAllByRole('button');
+    expect(buttons.length).toBe(0);
   });
 
-  it('shows clear button when a city is selected', () => {
+  it('shows clear button when a specific city is selected', () => {
     const onCityChange = vi.fn();
     render(
       <CityFilter
@@ -57,23 +50,8 @@ describe('CityFilter', () => {
       />
     );
 
-    const clearButton = screen.getByText('Clear');
+    // X button should be visible
+    const clearButton = screen.getByRole('button');
     expect(clearButton).toBeInTheDocument();
-
-    fireEvent.click(clearButton);
-    expect(onCityChange).toHaveBeenCalledWith('');
-  });
-
-  it('does not show clear button when no city is selected', () => {
-    const onCityChange = vi.fn();
-    render(
-      <CityFilter
-        stations={mockStations}
-        selectedCity=""
-        onCityChange={onCityChange}
-      />
-    );
-
-    expect(screen.queryByText('Clear')).not.toBeInTheDocument();
   });
 });

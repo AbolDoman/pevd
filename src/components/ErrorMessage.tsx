@@ -1,14 +1,30 @@
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { AlertCircle, RefreshCw } from 'lucide-react';
+
 interface ErrorMessageProps {
   message: string;
 }
 
 export function ErrorMessage({ message }: ErrorMessageProps) {
   return (
-    <div className="flex items-center justify-center h-screen">
-      <div className="bg-red-100 border border-red-400 text-red-700 px-6 py-4 rounded-lg">
-        <strong className="font-bold">Error: </strong>
-        <span>{message}</span>
-      </div>
+    <div className="flex items-center justify-center h-screen bg-background p-4">
+      <Alert variant="destructive" className="max-w-md">
+        <AlertCircle className="h-5 w-5" />
+        <AlertTitle className="ml-2">Something went wrong</AlertTitle>
+        <AlertDescription className="mt-2 ml-7">
+          <p className="mb-4">{message}</p>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => window.location.reload()}
+            className="gap-2"
+          >
+            <RefreshCw className="h-4 w-4" />
+            Try Again
+          </Button>
+        </AlertDescription>
+      </Alert>
     </div>
   );
 }
